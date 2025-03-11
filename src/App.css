@@ -1,0 +1,46 @@
+@media (max-width: 952px) {
+  .user-chat {
+    visibility: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    height: 100%;
+    width: 100%;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out, visibility 0.3s;
+  }
+
+  .user-chat-show {
+    visibility: visible;
+    transform: translateX(0);
+  }
+}
+.user-chat-hide {
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  visibility: hidden;
+  opacity: 0;
+  transition-delay: 0.3s; /* Ensure transition first, then hide */
+}
+/* Scrollbar width ko patla kare */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px; /* Default 16px hoti hai */
+}
+
+/* Scrollbar track (background) */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+/* Scrollbar thumb (jo move hota hai) */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #a0a0a0;
+  border-radius: 10px;
+}
+.message-text {
+  word-break: break-word; /* शब्द को ब्रेक कर देगा */
+  overflow-wrap: break-word; /* लंबा टेक्स्ट फिक्स करेगा */
+  white-space: pre-wrap; /* नए लाइन को प्रिज़र्व करेगा */
+}
