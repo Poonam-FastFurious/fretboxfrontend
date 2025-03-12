@@ -125,9 +125,7 @@ function ChatList() {
             })}
           </ul>
           {filteredChats.length === 0 && (
-            <div className="text-center text-zinc-500 py-4">
-              No chat users
-            </div>
+            <div className="text-center text-zinc-500 py-4">No chat users</div>
           )}
         </div>
       </div>
