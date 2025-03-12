@@ -73,7 +73,7 @@ function Contact() {
       </div>
 
       {/* 📜 Contact List */}
-      <div className="h-screen px-2 overflow-y-auto custom-scrollbar">
+      <div className="h-[calc(100vh-250px)] sm:h-[calc(100vh-40px)] px-2 overflow-y-auto custom-scrollbar">
         {Object.keys(groupedContacts)
           .sort()
           .map((letter) => (

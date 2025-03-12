@@ -28,7 +28,8 @@ function Home() {
               {activeTab === "Settings" && <Setting />}
             </div>
 
-            {!selectedChat ? <NoChatSelected /> : <Chatwindow />}
+            {selectedChat ? <Chatwindow /> : <NoChatSelected />}
+
             {isProfileOpen && <Showprofile />}
           </div>
         </div>

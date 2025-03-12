@@ -136,7 +136,7 @@ function ChatInput() {
           </button>
 
           {showEmojiPicker && (
-            <div className="absolute bottom-16 sm:left-12 left-0 bg-white shadow-lg rounded-lg p-2 z-10">
+            <div className="absolute bottom-16   bg-white shadow-lg rounded-lg  z-10">
               <EmojiPicker onEmojiClick={handleEmojiClick} />
             </div>
           )}

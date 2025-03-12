@@ -87,7 +87,7 @@ function Group() {
         </div>
 
         {/* Group List */}
-        <div className="h-[calc(100vh-200px)] px-2 overflow-y-auto custom-scrollbar">
+        <div className="h-[calc(100vh-250px)] sm:h-[calc(100vh-40px)] px-2 overflow-y-auto custom-scrollbar">
           <ul className="chat-user-list">
             {filteredGroups.length > 0 ? (
               filteredGroups.map((group) => (
