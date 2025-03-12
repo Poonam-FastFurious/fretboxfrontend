@@ -52,9 +52,7 @@ function ChatHeader() {
               {/* Show selected user name or default message */}
               <h5 className="mb-0 truncate text-16 text-gray-800">
                 {chatName}
-                {selectedChat.isGroup ? null : onlineUsers.includes(
-                    selectedChat.participants[0]?._id
-                  ) ? (
+                {!isGroup && onlineUsers.includes(otherParticipant?._id) ? (
                   <i className="ml-1 text-10 text-green-400 ri-record-circle-fill"></i>
                 ) : (
                   <i className="ml-1 text-10 text-red-400 ri-record-circle-fill"></i>

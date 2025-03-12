@@ -9,6 +9,7 @@ import Setting from "./Setting";
 import Chatwindow from "../Chatdata/Chatwindow";
 import { useChatStore } from "../store/useChatStore";
 import Showprofile from "../Chatuserprofile/Showprofile";
+import NoChatSelected from "../Componnets/NOChatSelected";
 
 function Home() {
   const { activeTab } = useAuthStore();
@@ -27,7 +28,7 @@ function Home() {
               {activeTab === "Settings" && <Setting />}
             </div>
 
-            {selectedChat && <Chatwindow />}
+            {!selectedChat ? <NoChatSelected /> : <Chatwindow />}
             {isProfileOpen && <Showprofile />}
           </div>
         </div>

@@ -1,1 +1,1 @@
-export const Baseurl = "https://fretboxbackend.onrender.com";
+export const Baseurl = "https://fretboxchat.onrender.com";

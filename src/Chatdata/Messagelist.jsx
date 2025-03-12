@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import MessageItem from "./MessageItem";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
-import MessageSkeleton from "../Messagekelton";
+import MessageSkeleton from "../Componnets/MessageSkeleton";
 
 const MessageList = () => {
   const {
@@ -32,7 +32,7 @@ const MessageList = () => {
   }, [messages]);
   if (isMessagesLoading) {
     return (
-      <div className="w-full h-[100vh] flex flex-col bg-white user-chat">
+      <div className="w-full h-[calc(100vh-250px)] sm:h-[calc(100vh-40px)] flex flex-col bg-white user-chat">
         <MessageSkeleton />
       </div>
     );

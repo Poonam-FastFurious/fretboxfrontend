@@ -4,6 +4,7 @@ import { formatMessageTime } from "../../../backupfretbox/src/Lib/Utils";
 import { useAuthStore } from "../store/useAuthStore";
 function ChatList() {
   const [searchQuery, setSearchQuery] = useState("");
+
   const { chatList, fetchChats, setSelectedChat, selectedChat } =
     useChatStore();
   useEffect(() => {
@@ -59,7 +60,7 @@ function ChatList() {
         </div>
 
         {/* User List */}
-        <div className="h-[calc(100vh-160px)] px-2 overflow-y-auto custom-scrollbar">
+        <div className="h-[calc(100vh-250px)] sm:h-[calc(100vh-40px)] px-2 overflow-y-auto custom-scrollbar">
           <ul className="chat-user-list ">
             {filteredChats.map((chat) => {
               const isGroup = chat.isGroup;
@@ -91,8 +92,15 @@ function ChatList() {
                         className="rounded-full w-9 h-9"
                         alt={chatName}
                       />
-                      {isGroup ? null : (
-                        <span className="absolute w-2.5 h-2.5 border-2 border-white rounded-full top-7 right-1 bg-gray-400"></span>
+                      {!isGroup && (
+                        <span
+                          className={`absolute w-2.5 h-2.5 border-2 border-white rounded-full top-7 right-1 
+    ${
+      useAuthStore.getState().onlineUsers.includes(chat.participants[0]._id)
+        ? "bg-green-400"
+        : "bg-gray-400"
+    }`}
+                        ></span>
                       )}
                     </div>
                     <div className="flex-grow overflow-hidden">
@@ -116,6 +124,11 @@ function ChatList() {
               );
             })}
           </ul>
+          {filteredChats.length === 0 && (
+            <div className="text-center text-zinc-500 py-4">
+              No chat users
+            </div>
+          )}
         </div>
       </div>
     </div>

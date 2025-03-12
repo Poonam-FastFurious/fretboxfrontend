@@ -1,5 +1,5 @@
 import EmojiPicker from "emoji-picker-react";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PoleInput from "./PoleInput";
 import { useChatStore } from "../store/useChatStore";
 
@@ -12,7 +12,12 @@ function ChatInput() {
   const [isSending, setIsSending] = useState(false);
   const { sendMessage, selectedChat } = useChatStore();
   const [showPoll, setShowPoll] = useState(false);
-
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  });
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -52,6 +57,9 @@ function ChatInput() {
     setFile(null); // ✅ Clear file
     setPreview(null); // ✅ Clear preview
     setIsSending(false);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   const handleEmojiClick = (emojiObject) => {
@@ -138,6 +146,7 @@ function ChatInput() {
             encType="multipart/form-data"
           >
             <input
+              ref={inputRef}
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -152,6 +161,7 @@ function ChatInput() {
                 isSending ? "opacity-50" : ""
               }`}
               disabled={isSending}
+              onMouseDown={(e) => e.preventDefault()}
             >
               {/* <div className="loader border-t-4 border-white border-solid rounded-full w-4 h-4 animate-spin"></div> */}
 
