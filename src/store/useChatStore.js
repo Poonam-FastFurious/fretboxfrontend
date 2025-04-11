@@ -66,7 +66,13 @@ export const useChatStore = create((set, get) => ({
         }
       );
 
-      set({ messages: res.data, isMessagesLoading: false });
+      set({
+        messages: res.data.messages, // Now correctly extracting messages
+        totalMessages: res.data.totalMessages, // Save total messages if needed
+        currentPage: res.data.currentPage, // Save pagination data if needed
+        totalPages: res.data.totalPages, // Save pagination data if needed
+        isMessagesLoading: false,
+      });
     } catch (error) {
       console.error("Error fetching messages:", error);
       toast.error(error.response?.data?.message || "Failed to load messages");
@@ -219,7 +225,7 @@ export const useChatStore = create((set, get) => ({
         ? { Authorization: `Bearer ${accessToken}` }
         : {};
 
-      const res = await axios.get(`${Baseurl}/api/v1/user/forchat`, {
+      const res = await axios.get(`${Baseurl}/api/v1/user/contact`, {
         withCredentials: true,
         headers, // Include Authorization header
       });

@@ -4,7 +4,6 @@ import { useAuthStore } from "../store/useAuthStore";
 import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -69,7 +68,7 @@ function Login() {
                         }
                       />
                     </div>
-                    <div>
+                    {/* <div>
                       <label
                         htmlFor="password"
                         className="block mb-2 text-sm font-medium text-gray-900 "
@@ -104,7 +103,7 @@ function Login() {
                           )}
                         </button>
                       </div>
-                    </div>
+                    </div> */}
 
                     <button
                       type="submit"
