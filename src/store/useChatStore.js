@@ -339,44 +339,47 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  createGroupChat: async ({ name, users }) => {
+  createGroupChat: async ({ name, users, image }) => {
     if (!name || !users || users.length < 2) {
       toast.error("At least two users are required for a group chat");
       return;
     }
-
+  
     try {
-      // Pehle localStorage se accessToken fetch karo
       const accessToken = localStorage.getItem("accessToken");
-
-      // Headers set karo agar accessToken available hai
+  
       const headers = accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "multipart/form-data", // Optional, axios sets it automatically
+          }
         : {};
-
-      // Group chat creation request bhejo (cookies bhi bhej rahe hain)
-      const res = await axios.post(
-        `${Baseurl}/api/v1/chats/group`,
-        { name, users },
-        {
-          withCredentials: true,
-          headers,
-        }
-      );
-
+  
+      // Prepare FormData
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("users", JSON.stringify(users)); // Users array as string
+      if (image) {
+        formData.append("image", image); // Append image file
+      }
+  
+      const res = await axios.post(`${Baseurl}/api/v1/chats/group`, formData, {
+        withCredentials: true,
+        headers,
+      });
+  
       set((state) => ({
-        chatList: [...state.chatList, res.data], // Add new group chat to the list
+        chatList: [...state.chatList, res.data],
       }));
-
+  
       toast.success("Group chat created successfully!");
       return res.data;
     } catch (error) {
       console.error("Error creating group chat:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to create group chat"
-      );
+      toast.error(error.response?.data?.message || "Failed to create group chat");
     }
   },
+  
 
   renameGroupChat: async (chatId, newName) => {
     if (!chatId || !newName) {

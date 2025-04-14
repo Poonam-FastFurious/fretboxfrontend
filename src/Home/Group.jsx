@@ -44,7 +44,11 @@ function Group() {
     }
 
     try {
-      await createGroupChat({ name: groupName, users: selectedUsers });
+      await createGroupChat({
+        name: groupName,
+        users: selectedUsers,
+        image: groupImage,
+      });
 
       // Reset form & close modal
       setIsModalOpen(false);
@@ -163,12 +167,18 @@ function Group() {
               </label>
               <div className="flex items-center border-b border-gray-300 py-2">
                 <input
-                  type="text"
-                  placeholder="Paste image URL"
+                  type="file"
+                  accept="image/*"
                   className="w-full border-none focus:ring-0 outline-none p-2"
-                  value={groupImage}
-                  onChange={(e) => setGroupImage(e.target.value)}
+                  onChange={(e) => setGroupImage(e.target.files[0])}
                 />
+                {groupImage && (
+                  <img
+                    src={URL.createObjectURL(groupImage)}
+                    alt="preview"
+                    className="w-20 h-20 mt-2 rounded-full object-cover"
+                  />
+                )}
               </div>
             </div>
 
