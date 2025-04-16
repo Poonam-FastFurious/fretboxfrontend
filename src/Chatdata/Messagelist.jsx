@@ -47,9 +47,11 @@ const MessageList = () => {
     <div className="flex-1 w-full overflow-y-auto p-4 lg:p-6 h-0">
       <ul className="space-y-4">
         {messages.length > 0 ? (
-          messages.map((msg) => (
-            <MessageItem key={msg._id} {...msg} handleCopy={handleCopy} />
-          ))
+          [...messages]
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)) // sort oldest to newest
+            .map((msg) => (
+              <MessageItem key={msg._id} {...msg} handleCopy={handleCopy} />
+            ))
         ) : (
           <p className="text-center text-gray-500">No messages yet.</p>
         )}
