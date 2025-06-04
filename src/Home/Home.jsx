@@ -28,7 +28,13 @@ function Home() {
               {activeTab === "Settings" && <Setting />}
             </div>
 
-            {selectedChat ? <Chatwindow /> : (activeTab === "Chats" || activeTab === "Groups") && <NoChatSelected />}
+            {selectedChat ? (
+              <Chatwindow />
+            ) : (
+              (activeTab === "Chats" || activeTab === "Groups") && (
+                <NoChatSelected />
+              )
+            )}
 
             {isProfileOpen && <Showprofile />}
           </div>

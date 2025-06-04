@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { formatMessageTime } from "../../../backupfretbox/src/Lib/Utils";
+import { formatMessageTime } from "../Lib/utils";
 import { useAuthStore } from "../store/useAuthStore";
 function ChatList() {
   const [searchQuery, setSearchQuery] = useState("");
