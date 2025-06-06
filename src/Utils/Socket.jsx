@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
-import { Baseurl } from "../Config";
+import { Baseurl } from "../confige";
+
 // Make sure this file has your base URL
 
 let socket = null;
