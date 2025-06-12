@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
@@ -66,14 +65,14 @@ function AutoLogin() {
 
         // 3. Fetch user profile
         console.log("📥 Fetching user profile from:", `${apiUrl}userProfile`);
-        const profileRes = await axios.get(`${apiUrl}userProfile`, {
+        const profileRes = await axios.get(`${apiUrl}oauthUser`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         });
 
-        const user = profileRes.data?.data?.user?.[0];
-        console.log("✅ User profile response:", profileRes.data);
+        const user = profileRes.data?.data;
+        console.log("✅ OAuth user response:", profileRes.data);
 
         if (!user) {
           const msg = "User profile not found or invalid token.";
