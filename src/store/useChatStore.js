@@ -340,21 +340,21 @@ export const useChatStore = create((set, get) => ({
   },
 
   createGroupChat: async ({ name, users, image }) => {
-    if (!name || !users || users.length < 2) {
+    if (!name || !users || users.length < 1) {
       toast.error("At least two users are required for a group chat");
       return;
     }
-  
+
     try {
       const accessToken = localStorage.getItem("accessToken");
-  
+
       const headers = accessToken
         ? {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "multipart/form-data", // Optional, axios sets it automatically
           }
         : {};
-  
+
       // Prepare FormData
       const formData = new FormData();
       formData.append("name", name);
@@ -362,24 +362,25 @@ export const useChatStore = create((set, get) => ({
       if (image) {
         formData.append("image", image); // Append image file
       }
-  
+
       const res = await axios.post(`${Baseurl}/api/v1/chats/group`, formData, {
         withCredentials: true,
         headers,
       });
-  
+
       set((state) => ({
         chatList: [...state.chatList, res.data],
       }));
-  
+
       toast.success("Group chat created successfully!");
       return res.data;
     } catch (error) {
       console.error("Error creating group chat:", error);
-      toast.error(error.response?.data?.message || "Failed to create group chat");
+      toast.error(
+        error.response?.data?.message || "Failed to create group chat"
+      );
     }
   },
-  
 
   renameGroupChat: async (chatId, newName) => {
     if (!chatId || !newName) {

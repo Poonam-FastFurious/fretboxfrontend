@@ -20,24 +20,22 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigningUp: true });
     try {
       const response = await axiosInstance.post("/api/v1/user/signup", data);
-
-      toast.success("Account created successfully. Please login.");
       return response;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Signup failed");
+      console.log(error.response?.data?.message || "Signup failed");
       throw error;
     } finally {
       set({ isSigningUp: false });
     }
   },
 
-  login: async (email, password) => {
+  login: async (email, password, communityId) => {
     set({ isLoggingIn: true }); // Login start hone par loading true
 
     try {
       const res = await axios.post(
         `${Baseurl}/api/v1/user/login`,
-        { email, password },
+        { email, password, communityId },
         { withCredentials: true }
       );
 
@@ -49,7 +47,7 @@ export const useAuthStore = create((set, get) => ({
       }
 
       set({ authUser: res.data, isLoggingIn: false }); // Login success
-      toast.success("Logged in successfully");
+
       get().connectSocket();
 
       return { success: true };

@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "./store/useAuthStore";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
+import AutoLogin from "./AuthentiCation/AutoLogin";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
@@ -27,11 +28,7 @@ function App() {
         <Routes>
           <Route
             path="/login"
-            element={!authUser ? <Login /> : <Navigate to="/" />}
-          />
-          <Route
-            path="/register"
-            element={!authUser ? <Signup /> : <Navigate to="/" />}
+            element={!authUser ? <AutoLogin /> : <Navigate to="/" />}
           />
           <Route
             path="/"

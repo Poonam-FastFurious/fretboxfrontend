@@ -1,32 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore"; // Import auth store
-import { useChatStore } from "../store/useChatStore"; // Import chat store
 import toast from "react-hot-toast";
 
 function Signup() {
   const navigate = useNavigate();
   const { signup } = useAuthStore(); // Signup function
-  const { fetchUsers, userList } = useChatStore(); // Fetch users for admin/super admin
 
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState("User");
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    admin: "",
-    superAdmin: "",
+    communityId: "",
   });
 
-  useEffect(() => {
-    fetchUsers(); // Fetch users when component mounts
-  }, []);
-
   // Filter admins & super admins
-  const admins = userList.filter((user) => user.role === "Admin");
-  const superAdmins = userList.filter((user) => user.role === "SuperAdmin");
 
   // Handle Input Change
   const handleChange = (e) => {
@@ -38,7 +29,12 @@ function Signup() {
     e.preventDefault();
 
     // ✅ Client-side validation
-    if (!formData.fullName || !formData.email || !formData.password) {
+    if (
+      !formData.fullName ||
+      !formData.email ||
+      !formData.password ||
+      !formData.communityId
+    ) {
       toast.error("All fields are required!");
       return;
     }
@@ -53,13 +49,10 @@ function Signup() {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
-        role: selectedRole,
-        admin: selectedRole === "User" ? formData.admin : null,
-        superAdmin: selectedRole === "Admin" ? formData.superAdmin : null,
+        communityId: formData.communityId,
       });
 
       if (response) {
-        fetchUsers(); // ✅ Successful signup ke baad user list update karo
         navigate("/login"); // ✅ Sirf success hone par redirect karo
       }
     } catch (error) {
@@ -109,6 +102,18 @@ function Signup() {
                   required
                 />
               </div>
+               <div>
+                <label className="block text-sm font-medium">CommunityId</label>
+                <input
+                  type="text"
+                  name="communityId"
+                  value={formData.communityId}
+                  onChange={handleChange}
+                  placeholder="F2500"
+                  className="w-full p-2.5 border rounded-lg"
+                  required
+                />
+              </div>
               <div className="relative">
                 <label className="block text-sm font-medium">Password</label>
                 <input
@@ -134,69 +139,6 @@ function Signup() {
               </div>
 
               {/* Role Selection */}
-              <div>
-                <label className="block text-sm font-medium">Role</label>
-                <div className="flex gap-4">
-                  {["User", "Admin", "SuperAdmin"].map((role) => (
-                    <label key={role} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="role"
-                        value={role}
-                        checked={selectedRole === role}
-                        onChange={(e) => setSelectedRole(e.target.value)}
-                      />
-                      <span>{role}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Admin Dropdown (Only for Users) */}
-              {selectedRole === "User" && (
-                <div>
-                  <label className="block text-sm font-medium">
-                    Select Admin
-                  </label>
-                  <select
-                    name="admin"
-                    value={formData.admin}
-                    onChange={handleChange}
-                    className="w-full p-2.5 border rounded-lg"
-                    required
-                  >
-                    <option value="">Select Admin</option>
-                    {admins.map((admin) => (
-                      <option key={admin._id} value={admin._id}>
-                        {admin.fullName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Super Admin Dropdown (Only for Admins) */}
-              {selectedRole === "Admin" && (
-                <div>
-                  <label className="block text-sm font-medium">
-                    Select Super Admin
-                  </label>
-                  <select
-                    name="superAdmin"
-                    value={formData.superAdmin}
-                    onChange={handleChange}
-                    className="w-full p-2.5 border rounded-lg"
-                    required
-                  >
-                    <option value="">Select Super Admin</option>
-                    {superAdmins.map((superAdmin) => (
-                      <option key={superAdmin._id} value={superAdmin._id}>
-                        {superAdmin.fullName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
 
               <button
                 type="submit"

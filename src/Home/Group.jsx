@@ -38,8 +38,8 @@ function Group() {
   };
 
   const handleCreateGroup = async () => {
-    if (!groupName || selectedUsers.length < 2) {
-      toast.error("Please enter a group name & select at least two users");
+    if (!groupName || selectedUsers.length < 1) {
+      toast.error("Please enter a group name & select at least one users");
       return;
     }
 

@@ -7,13 +7,15 @@ function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    communityId: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLoggingIn } = useAuthStore();
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { email, password } = formData;
-    await login(email, password); // ✅ Pass separate arguments
+    const { email, password, communityId } = formData;
+    await login(email, password, communityId); // ✅ Pass separate arguments
     navigate("/");
   };
 
@@ -68,7 +70,7 @@ function Login() {
                         }
                       />
                     </div>
-                    {/* <div>
+                    <div>
                       <label
                         htmlFor="password"
                         className="block mb-2 text-sm font-medium text-gray-900 "
@@ -103,8 +105,32 @@ function Login() {
                           )}
                         </button>
                       </div>
-                    </div> */}
-
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="password"
+                        className="block mb-2 text-sm font-medium text-gray-900 "
+                      >
+                        communityId
+                      </label>
+                      <div className="relative">
+                        <input
+                          value={formData.communityId}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              communityId: e.target.value,
+                            })
+                          }
+                          type="text"
+                          name="communityId"
+                          id="communityId"
+                          placeholder="F230041"
+                          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5       "
+                          required
+                        />
+                      </div>
+                    </div>
                     <button
                       type="submit"
                       className="w-full text-white bg-gray-900 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
