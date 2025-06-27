@@ -131,7 +131,7 @@ function ChatList() {
                   </div>
 
                   {unreadCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                       {unreadCount}
                     </span>
                   )}
