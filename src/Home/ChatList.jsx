@@ -2,38 +2,51 @@ import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { formatMessageTime } from "../Lib/utils";
 import { useAuthStore } from "../store/useAuthStore";
+import useDebounce from "../store/useDebounce";
+import useTypingSocket from "../store/useTypingSocket";
 function ChatList() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState(""); // for controlled input
 
-  const { chatList, fetchChats, setSelectedChat, selectedChat } =
+  const debouncedSetSearchQuery = useDebounce(
+    (val) => setSearchQuery(val),
+    300
+  );
+  const authUser = useAuthStore((state) => state.authUser);
+  const currentUserId = authUser?._id;
+
+  const { chatList, fetchChats, setSelectedChat, selectedChat, typingStatus } =
     useChatStore();
+
+  const onlineUsers = useAuthStore.getState().onlineUsers;
+  useTypingSocket();
   useEffect(() => {
     fetchChats();
-  }, []);
-  useEffect(() => {
-    const socket = useAuthStore.getState().socket;
+  }, [fetchChats]);
 
-    socket.on("newMessage", () => {
-      fetchChats(); // Chat list ko update karega jab naya message aaye
+  const getChatName = (chat) =>
+    chat.isGroup
+      ? chat.groupName
+      : chat.participants.find((p) => p._id !== currentUserId)?.fullName ||
+        "Unknown";
+
+  const getChatImage = (chat) =>
+    chat.participants.find((p) => p._id !== currentUserId)?.profilePic ||
+    "default-avatar.png";
+
+  const filterChats = () => {
+    const activeChats = chatList.filter((chat) => chat.status === "active");
+    return activeChats.filter((chat) => {
+      const name = getChatName(chat).toLowerCase();
+      const message = (chat.latestMessage || "").toLowerCase();
+      return (
+        name.includes(searchQuery.toLowerCase()) ||
+        message.includes(searchQuery.toLowerCase())
+      );
     });
+  };
 
-    return () => {
-      socket.off("newMessage"); // Cleanup
-    };
-  }, []);
-
-  const activeChats = chatList.filter((chat) => chat.status === "active");
-
-  const filteredChats = activeChats.filter((chat) => {
-    const isGroup = chat.isGroup;
-    const chatName = isGroup ? chat.groupName : chat.participants[0].fullName;
-    const latestMessage = chat.latestMessage || "";
-
-    return (
-      chatName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      latestMessage.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
+  const filteredChats = filterChats();
   return (
     <div className="flex-grow">
       <div className="chat-leftsidebar w-full md:w-[450px] lg:w-[380px] max-w-full bg-white h-screen flex flex-col border-x-[1px] border-gray-200">
@@ -47,8 +60,12 @@ function ChatList() {
               <i className="text-lg text-gray-400 ri-search-line"></i>
             </span>
             <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)} // Update state
+              value={inputValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                setInputValue(value); // update instantly for UI
+                debouncedSetSearchQuery(value); // update actual filter after delay
+              }} // Update state
               type="text"
               className="border-0 bg-gray-100 placeholder:text-[14px] focus:ring-0 focus:outline-none placeholder:text-gray-400 flex-grow px-2"
               placeholder="Search messages or users"
@@ -63,22 +80,27 @@ function ChatList() {
         <div className="h-[calc(100vh-250px)] sm:h-[calc(100vh-40px)] px-2 overflow-y-auto custom-scrollbar">
           <ul className="chat-user-list ">
             {filteredChats.map((chat) => {
-              const isGroup = chat.isGroup;
-              const chatName = isGroup
-                ? chat.groupName
-                : chat.participants[0].fullName;
-              const chatImage = isGroup
-                ? chat.groupImage
-                : chat.participants[0].profilePic;
+              const chatName = getChatName(chat);
+              const chatImage = getChatImage(chat);
               const latestMessage = chat.latestMessage || "No messages yet";
-              // const unreadMessages = chat.unreadMessages
-              //   ? Object.values(chat.unreadMessages)[0]
-              //   : 0;
+
+              const isOnline =
+                !chat.isGroup &&
+                onlineUsers.includes(chat.participants[0]?._id);
+
+              const unreadCount = chat.unreadMessages?.[currentUserId] || 0;
 
               return (
                 <li
                   key={chat._id}
-                  onClick={() => setSelectedChat(chat)}
+                  onClick={async () => {
+                    setSelectedChat(chat);
+                    if (chat.unreadMessages?.[currentUserId] > 0) {
+                      await useChatStore
+                        .getState()
+                        .markMessagesAsRead(chat._id);
+                    }
+                  }}
                   className={` ${
                     selectedChat?._id === chat._id
                       ? "bg-gray-200"
@@ -92,30 +114,27 @@ function ChatList() {
                         className="rounded-full w-9 h-9"
                         alt={chatName}
                       />
-                      {!isGroup && (
+                      {!chat.isGroup && (
                         <span
-                          className={`absolute w-2.5 h-2.5 border-2 border-white rounded-full top-7 right-1 
-    ${
-      useAuthStore.getState().onlineUsers.includes(chat.participants[0]._id)
-        ? "bg-green-400"
-        : "bg-gray-400"
-    }`}
+                          className={`absolute w-2.5 h-2.5 border-2 border-white rounded-full top-7 right-1 ${
+                            isOnline ? "bg-green-400" : "bg-gray-400"
+                          }`}
                         ></span>
                       )}
                     </div>
-                    <div className="flex-grow overflow-hidden">
+                    <div className="flex-grow overflow-hidden max-w-[220px]">
                       <h5 className="mb-1 text-base truncate">{chatName}</h5>
                       <p className="mb-0 text-gray-500 truncate text-14">
-                        {latestMessage}
+                        {typingStatus[chat._id] ? "Typing..." : latestMessage}
                       </p>
                     </div>
                   </div>
 
-                  {/* {unreadMessages > 0 && (
+                  {unreadCount > 0 && (
                     <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      {unreadMessages}
+                      {unreadCount}
                     </span>
-                  )} */}
+                  )}
 
                   <span className="  text-xs font-bold px-2 py-1 rounded-full">
                     {formatMessageTime(chat.updatedAt)}

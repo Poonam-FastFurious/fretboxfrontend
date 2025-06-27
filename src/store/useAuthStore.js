@@ -20,8 +20,11 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigningUp: true });
     try {
       const response = await axiosInstance.post("/api/v1/user/signup", data);
+      toast.success("Signup successful!");
       return response;
     } catch (error) {
+      const message = error.response?.data?.message || "Signup failed";
+      toast.error(message);
       console.log(error.response?.data?.message || "Signup failed");
       throw error;
     } finally {
@@ -49,19 +52,38 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data, isLoggingIn: false }); // Login success
 
       get().connectSocket();
-
+      toast.success("Login successful!");
       return { success: true };
     } catch (error) {
+      const message = error.response?.data?.message || "Login failed";
       console.error(
         "Login Error:",
         error.response?.data?.message || error.message
       );
       set({ isLoggingIn: false }); // Login fail hone par loading false
+      toast.error(message);
       return {
         success: false,
         message: error.response?.data?.message || "Login failed",
       };
     }
+  },
+  loginByPayload: (data) => {
+    const { accessToken, refreshToken, ...user } = data;
+
+    // Save tokens
+    Cookies.set("accessToken", accessToken);
+    Cookies.set("refreshToken", refreshToken);
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    sessionStorage.setItem("refreshToken", refreshToken);
+    sessionStorage.setItem("accessToken", accessToken);
+
+    // Set user
+    set({ authUser: user });
+
+    // ✅ Connect socket here
+    get().connectSocket();
   },
 
   checkAuth: async () => {

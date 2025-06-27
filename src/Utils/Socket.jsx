@@ -10,6 +10,11 @@ export const getSocket = (userId) => {
     socket = io(Baseurl, {
       withCredentials: true,
       transports: ["websocket"],
+      query: {
+        userId: userId, // ✅ Pass userId here
+      },
+      reconnection: true,
+      reconnectionAttempts: 5,
     });
 
     socket.on("connect", () => {

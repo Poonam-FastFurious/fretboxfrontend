@@ -1,13 +1,10 @@
-import React, { useEffect } from "react";
-
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 function ChatHeader() {
-  const { setSelectedChat, selectedChat, toggleProfile } = useChatStore();
+  const { setSelectedChat, selectedChat, toggleProfile, typingStatus } =
+    useChatStore();
   const { onlineUsers, authUser } = useAuthStore();
-  useEffect(() => {
-    console.log("Updated selectedChat:", selectedChat);
-  }, [selectedChat]);
+
   if (!selectedChat) return null;
   const isGroup = selectedChat.isGroup;
   const otherParticipant = !isGroup
@@ -20,9 +17,12 @@ function ChatHeader() {
   const chatName = isGroup
     ? selectedChat.groupName
     : otherParticipant?.fullName;
+
   const chatImage = isGroup
     ? selectedChat.groupImage || "default-group.png"
     : otherParticipant?.profilePic || "default-avatar.png";
+
+  const isTyping = typingStatus[selectedChat?._id];
 
   return (
     <>
@@ -58,6 +58,11 @@ function ChatHeader() {
                   <i className="ml-1 text-10 text-red-400 ri-record-circle-fill"></i>
                 )}
               </h5>
+              {isTyping && (
+                <p className="text-xs text-gray-500 -mt-1">
+                  {!isGroup ? "Typing..." : "Someone is typing..."}
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -100,7 +100,7 @@ function Aside() {
                     to="#"
                     onClick={() => setActiveTab("Profile")}
                   >
-                    Profile{" "}
+                    Profile
                     <i className="ri-profile-line float-right text-gray-500"></i>
                   </Link>
                 </li>
@@ -110,7 +110,7 @@ function Aside() {
                     to="#"
                     onClick={() => setActiveTab("Settings")}
                   >
-                    Setting{" "}
+                    Setting
                     <i className="ri-settings-3-line float-right text-gray-500"></i>
                   </Link>
                 </li>
@@ -120,7 +120,7 @@ function Aside() {
                     to="#"
                     onClick={handleLogout}
                   >
-                    Log out{" "}
+                    Log out
                     <i className="ri-logout-circle-r-line float-right text-gray-500"></i>
                   </Link>
                 </li>

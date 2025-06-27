@@ -28,7 +28,11 @@ function App() {
         <Routes>
           <Route
             path="/login"
-            element={!authUser ? <AutoLogin /> : <Navigate to="/" />}
+            element={!authUser ? <Login /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/register"
+            element={!authUser ? <Signup /> : <Navigate to="/" />}
           />
           <Route
             path="/"

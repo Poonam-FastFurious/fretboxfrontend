@@ -7,9 +7,10 @@ import { Baseurl } from "../confige";
 export const useChatStore = create((set, get) => ({
   selectedChat: null,
   messages: [],
-  chatList: [], // ✅ Store chat list
-  userList: [], // ✅ Store user list
-  chatuserList: [], // ✅ Store user list
+  chatList: [],
+  userList: [],
+  chatuserList: [],
+  typingStatus: {},
   isUsersLoading: false,
   ischatUsersLoading: false,
   isMessagesLoading: false,
@@ -274,23 +275,32 @@ export const useChatStore = create((set, get) => ({
   },
 
   subscribeToMessages: () => {
-    const { selectedChat } = get(); // ✅ Use selectedChat instead of selectedUser
-    if (!selectedChat) return; // Ensure a chat is selected
+    const { selectedChat } = get();
+    if (!selectedChat) return;
 
     const socket = useAuthStore.getState().socket;
-    console.log("✅ Subscribing to messages, Socket:", socket);
 
-    socket.on("newMessage", (newMessage) => {
-      console.log("📩 New message received:", newMessage);
-      if (newMessage.chat !== selectedChat._id) return;
+    // ✅ Clean up previous listeners
+    socket.off("newMessage");
+    socket.off("messageDeleted");
+    socket.off("pollUpdated");
 
-      set({ messages: [...get().messages, newMessage] });
-      get().fetchChats();
+    socket.on("newMessage", async (newMessage) => {
+      const { selectedChat } = get();
+
+      if (newMessage.chat === selectedChat?._id) {
+        // ✅ If message is for the chat currently open, add it & mark as read
+        set({ messages: [...get().messages, newMessage] });
+
+        // ✅ Immediately mark as read
+        await get().markMessagesAsRead(newMessage.chat);
+      } else {
+        // 🔁 If it's for another chat, still fetch chats to update unread count
+        get().fetchChats();
+      }
     });
 
     socket.on("messageDeleted", ({ messageId }) => {
-      console.log("🗑 Message deleted event received:", messageId);
-
       set((state) => ({
         messages: state.messages.filter((msg) => msg._id !== messageId),
       }));
@@ -306,6 +316,7 @@ export const useChatStore = create((set, get) => ({
       }));
     });
   },
+
   fetchChatDetails: async (chatId) => {
     if (!chatId) return;
 
@@ -469,7 +480,63 @@ export const useChatStore = create((set, get) => ({
     }
     socket.off("newMessage");
   },
+  markMessagesAsRead: async (chatId) => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const headers = accessToken
+        ? { Authorization: `Bearer ${accessToken}` }
+        : {};
 
+      await axios.patch(`${Baseurl}/api/v1/message/read/${chatId}`, null, {
+        headers,
+        withCredentials: true,
+      });
+
+      const currentUserId = useAuthStore.getState().authUser?._id;
+
+      // ✅ Locally update chatList
+      const updatedChatList = get().chatList.map((chat) => {
+        if (chat._id === chatId) {
+          return {
+            ...chat,
+            unreadMessages: {
+              ...chat.unreadMessages,
+              [currentUserId]: 0,
+            },
+          };
+        }
+        return chat;
+      });
+
+      set({ chatList: [...updatedChatList] });
+
+      // ✅ Also update selectedChat if needed
+      if (get().selectedChat?._id === chatId) {
+        set({
+          selectedChat: {
+            ...get().selectedChat,
+            unreadMessages: {
+              ...get().selectedChat.unreadMessages,
+              [currentUserId]: 0,
+            },
+          },
+        });
+      }
+
+      // 🔄 BONUS: Refetch entire chat list to ensure full sync
+      await get().fetchChats(); // This ensures latest unread counts from backend
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+      toast.error("Failed to mark messages as read");
+    }
+  },
+  setTypingStatus: (chatId, isTyping) =>
+    set((state) => ({
+      typingStatus: {
+        ...state.typingStatus,
+        [chatId]: isTyping,
+      },
+    })),
   setSelectedChat: (selectedChat) => {
     set({ selectedChat });
     get().subscribeToMessages(); // ✅ Automatically subscribe when chat is selected

@@ -23,7 +23,7 @@ function Group() {
   useEffect(() => {
     fetchChats();
     fetchChatUsers(); // ✅ Fetch users from store
-  }, []);
+  }, [fetchChatUsers, fetchChats]);
 
   const groupChats = chatList.filter((chat) => chat.isGroup);
   const filteredGroups = groupChats.filter((group) =>
@@ -67,7 +67,6 @@ function Group() {
         {/* Header + Create Group Button */}
         <div className="px-6 pt-6 bg-white z-10">
           <div className=" flex  justify-between">
-            {" "}
             <h4 className="mb-0 text-gray-700">Groups</h4>
             <button
               onClick={() => setIsModalOpen(true)}
@@ -115,7 +114,7 @@ function Group() {
                         {group.groupName}
                       </h5>
                       <p className="mb-0 text-gray-500 truncate text-14">
-                        {group.latestMessage?.content || "No messages yet"}
+                        {group.latestMessage || "No messages yet"}
                       </p>
                     </div>
                   </div>
@@ -156,6 +155,7 @@ function Group() {
                   className="w-full border-none focus:ring-0 outline-none p-2"
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
+                  maxLength={50}
                 />
               </div>
             </div>

@@ -17,7 +17,7 @@ function Home() {
   return (
     <>
       <div className="bg-[#85b0c0] overflow-hidden">
-        <div className="sm:w-[80%] mx-auto">
+        <div className=" mx-auto">
           <div className="flex">
             <Aside />
             <div className="flex-grow">

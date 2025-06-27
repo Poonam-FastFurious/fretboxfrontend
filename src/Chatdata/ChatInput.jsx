@@ -2,6 +2,7 @@ import EmojiPicker from "emoji-picker-react";
 import React, { useEffect, useRef, useState } from "react";
 import PoleInput from "./PoleInput";
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 function ChatInput() {
   const [message, setMessage] = useState("");
@@ -13,6 +14,7 @@ function ChatInput() {
   const { sendMessage, selectedChat } = useChatStore();
   const [showPoll, setShowPoll] = useState(false);
   const inputRef = useRef(null);
+  const { authUser, socket } = useAuthStore();
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -64,6 +66,37 @@ function ChatInput() {
 
   const handleEmojiClick = (emojiObject) => {
     setMessage((prev) => prev + emojiObject.emoji);
+  };
+  const typingTimeout = useRef(null);
+
+  const handleTyping = (e) => {
+    const value = e.target.value;
+    setMessage(value);
+
+    // Emit 'typing' only if message isn't empty
+    if (socket && selectedChat && value.trim()) {
+      socket.emit("typing", {
+        chatId: selectedChat._id,
+        senderId: authUser._id,
+      });
+
+      // Clear previous timeout
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+
+      // Emit stopTyping after 2s of inactivity
+      typingTimeout.current = setTimeout(() => {
+        socket.emit("stopTyping", {
+          chatId: selectedChat._id,
+          senderId: authUser._id,
+        });
+      }, 2000);
+    } else if (socket && selectedChat) {
+      // If input is cleared
+      socket.emit("stopTyping", {
+        chatId: selectedChat._id,
+        senderId: authUser._id,
+      });
+    }
   };
 
   return (
@@ -149,7 +182,7 @@ function ChatInput() {
               ref={inputRef}
               type="text"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={handleTyping}
               className="w-[70%] border border-gray-300 rounded-lg p-2 text-14 bg-gray-50 placeholder-gray-500"
               placeholder="Enter Message..."
               disabled={isSending}
